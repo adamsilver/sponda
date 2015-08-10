@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html dir="ltr" lang="en">
+<head>
+    <title>{{ page.title }} | {{ site.name }}</title>
+    {% include head.html %}
+</head>
+<body>
+    <div id="container">
+        {% include header.html %}
+        <div id="content">
+            <div id="article">
+                <h1 class="title">{{ page.title }}</h1>
+                {% if page.tagline %}
+                	<h2 class="tagline">{{ page.tagline }}</h2>
+                {% endif %}
+				<p class="date">{{ page.date | date: "%-d %B %Y" }}</p>
+                <p class="wordCount">{{ page.content | number_of_words }} words</p>
+
+                {{ content }}
+            </div>
+        </div>
+        {% include footer.html %}
+    </div>
+</body>
+</html>
