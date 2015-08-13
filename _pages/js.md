@@ -33,21 +33,21 @@ Vendor should house *all* third party scripts. Don’t store the minified and no
 
 ## Architecture
 
-Architecture should allow for the range of features we have across the site from the more simple (e.g. footer sites overlay) to the more complex (e.g. add to basket). With that in-mind a simple client-side MVC-type approach is defined as follows.
+Architecture should allow for the range of features from simple to complex.
 
 ### Components
 
-All components are constructors for testability and consistency. See testing docs for more on that.
+All components are constructors for testability and consistency.
 
 #### Controllers
 
 For every feature a controller must be defined and instantiated. Controllers implement views. Controllers have no knowledge of other controllers.
 
-They communicate via custom events (these are NOT event emitters, at least not how we differentiate between them on this project). CustomEvents are defined against project.events (which is a mediator). Controllers can then publish or subscribe to these. Examples follow later.
+Controllers communicate via custom events (these are NOT event emitters). CustomEvents are defined against project.events (which is a mediator). Controllers can then publish or subscribe to these. Examples follow later.
 
 #### Views
 
-A view encapsulates DOM. Finding elements, interoggating elements, adding event listeners to elements. They don't have any idea of the existence of any other view or controller.
+A view encapsulates the DOM &mdash; finding elements, interoggating elements, adding event listeners to elements. They don't have any idea of the existence of any other view or controller.
 
 Views can optionally become event emitters (these are NOT to be confused with custom events as per their usage in controllers). They can become event emitters by inheriting from BaseView (which inherits from EventEmitter).
 
@@ -63,9 +63,9 @@ Models/collections are client-side objects that are useful for instant UI update
 
 #### Custom Events vs Event Emitters
 
-Both custom events and event emitters are very similar and perhaps the naming for Custom Events needs to change - we will discuss.
+Both custom events and event emitters are very similar and perhaps the naming for Custom Events needs to change.
 
-Custom events should only be referenced at the controller level, NOT in the views or anywhere else for that matter. They are used to ensure controllers don't know anything about each other and are loosely coupled via the project.events mediator object.
+Custom events should only be referenced at the controller level, *not* in the views or anywhere else for that matter. They are used to ensure controllers don't know anything about each other and are loosely coupled via the project.events mediator object.
 
 Event Emitters are tied to components. It means any object that implements it can listen for events on it and be more tightly coupled.
 
@@ -466,18 +466,18 @@ As you can see our function does two things so our spec is straightforward:
 
 ### Quick guides
 
-* The first describe should name the component e.g.
-
-	describe("Accordion");
+* The first describe should name the component e.g. `describe("Accordion");`
 
 * All describe and it blocks should be in english using correct grammar.
 
 * Don't repeat the word "should". Terse is good as follows:
 
-	// good
+Good:
+
 	it("Returns true");
 
-	// bad
+Bad:
+
 	it("Should return true");
 
 * Create a variable with the name of the component. That will be referenced throughout each test.
