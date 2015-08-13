@@ -2,7 +2,7 @@
 layout: default
 title: Javascript standards and conventions
 id: JS
-permalink: /JS/
+permalink: /js/
 ---
 
 # JS
