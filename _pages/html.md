@@ -81,24 +81,6 @@ Head to Sitepoint (http://www.sitepoint.com/web-foundations/iso-2-letter-languag
 	...
 	</html>
 
-## Semantic HTML
-
-The foundation of solid front-end code is built upon semantic HTML. The benefits include:
-
-* Accessibility
-
-* Responsive Web Design
-
-* SEO
-
-* Developer understanding and onboarding
-
-* Maintainability
-
-* Performance
-
-For more information see this article: [Semantic HTML](http://adamsilver.github.io/articles/semantic-html/).
-
 ## Syntax
 
 * Use soft tabs with spaces.
@@ -131,23 +113,3 @@ Don't omit optional closing tags (e.g. `</li>` or `</body>`).
 The only reason to self-close tags and use long form attributes is for serving up a page using application/xhtml+xml which we don't do and should never do. XHTML came second and lost the battle shortly after its arrival. The most cross-browser compliant code is HTML.
 
 Added bonus (for the performance obsessive): a few less bytes.
-
-### Using IDs
-
-Use IDs sparingly but a unique module should use one if it only appears once on a page. e.g. header is a perfect candidate for an ID.
-
-Required:
-
-* In page anchors and skip links
-
-* form controls with labels
-
-* Unique module identifiers
-
-#### Bad examples
-
-Coming soon.
-
-#### Good examples
-
-Coming soon.

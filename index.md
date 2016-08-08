@@ -12,7 +12,7 @@ This acts as a single point of reference for any code guidelines, standards and 
 
 This guide clarifies what it takes for a story to be considered done.
 
-1. HTML is valid according to W3C. http://validator.w3.org/
+* HTML is valid according to W3C. http://validator.w3.org/
 * HTML is written to agreed conventions.
 * CSS is valid according to W3C. http://jigsaw.w3.org/css-validator/
 * CSS is written to agreed conventions.
