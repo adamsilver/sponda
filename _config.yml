@@ -1,9 +1,6 @@
 name: Frontend Standards | By Adam Silver
-markdown: redcarpet
-highlighter: pygments
+markdown: kramdown
 permalink: /articles/:title/
 url: http://adamsilver.github.io/sponda
 baseurl: /sponda
 include: ['_pages']
-redcarpet:
-  extensions: ["no_intra_emphasis", "fenced_code_blocks", "autolink", "tables", "with_toc_data"]
