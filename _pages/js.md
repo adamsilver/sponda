@@ -43,13 +43,13 @@ All components are constructors for testability and consistency.
 
 For every feature a controller must be defined and instantiated. Controllers implement views. Controllers have no knowledge of other controllers.
 
-Controllers communicate via custom events (these are NOT event emitters). CustomEvents are defined against project.events (which is a mediator). Controllers can then publish or subscribe to these. Examples follow later.
+Controllers communicate via custom events (these are NOT event emitters). CustomEvents are defined against app.events (which is a mediator). Controllers can then publish or subscribe to these. Examples follow later.
 
 #### Views
 
 A view encapsulates the DOM &mdash; finding elements, interoggating elements, adding event listeners to elements. They don't have any idea of the existence of any other view or controller.
 
-Views can optionally become event emitters (these are NOT to be confused with custom events as per their usage in controllers). They can become event emitters by inheriting from BaseView (which inherits from EventEmitter).
+Views can optionally become event emitters (these are NOT to be confused with custom events as per their usage in controllers). They can become event emitters by inheriting from EventEmitter.
 
 Examples follow later.
 
@@ -59,64 +59,64 @@ Services encapsulate XHR calls. This is where the client and server contract is 
 
 #### Models
 
-Models/collections are client-side objects that are useful for instant UI updates giving the user perception of speed while the XHR sync happens in the background. We don't have these yet, but likely useful for the menu page in the future.
+Models/collections are client-side objects that are useful for instant UI updates giving the user perception of speed while the XHR sync happens in the background.
 
 #### Custom Events vs Event Emitters
 
 Both custom events and event emitters are very similar and perhaps the naming for Custom Events needs to change.
 
-Custom events should only be referenced at the controller level, *not* in the views or anywhere else for that matter. They are used to ensure controllers don't know anything about each other and are loosely coupled via the project.events mediator object.
+Custom events should only be referenced at the controller level, *not* in the views or anywhere else for that matter. They are used to ensure controllers don't know anything about each other and are loosely coupled via the app.events mediator object.
 
 Event Emitters are tied to components. It means any object that implements it can listen for events on it and be more tightly coupled.
 
-### Simple example e.g. Footer sites overlay
+### Simple example: Menu
+
+In this example, you don't necessarily need a controller. You only need a controller when:
+
+1. A component needs a service/model/collection.
+2. When firing a CustomEvent (but technically not even then - depends on your taste)
 
 Controller:
 
-	project.controllers.FooterSiteMenuController = function() {
-		this.view = new project.views.FooterSiteMenuView();
+	app.controllers.MenuController = function() {
+		this.view = new app.views.MenuView();
 	};
 
 View:
 
-	project.views.FooterSiteMenuView = function() {
-		this.container = $("...");
-		this.container.hide();
-		$("the link").on("click", $.proxy(this, "onLinkClicked"));
+	app.views.MenuView = function(container) {
+		this.container = container;
+		this.container.on("click", "a", $.proxy(this, "onLinkClicked"));
 	};
 
-	project.views.FooterSiteMenuView.prototype.onLinkClicked = function(e) {
+	app.views.MenuView.prototype.onLinkClicked = function(e) {
+		this.doWhatever():
 		e.preventDefault();
-		// logic to toggle between showing and hiding etc
 	};
 
-	project.views.FooterSiteMenuView.prototype.hide = function() {
-		// stuff to make it hide
-	};
-
-	project.views.FooterSiteMenuView.prototype.show = function() {
-		// stuff to make it hide
+	app.views.MenuView.prototype.doWhatever = function() {
+		// ...
 	};
 
 Initialising:
 
-	new project.controllers.FooterSiteMenuController();
+	new app.controllers.MenuController();
 
 ### Complex example e.g. Remove item from basket
 
 Controller:
 
-	project.controllers.BasketController = function() {
-		this.basketService = new project.services.BasketService();
-		this.basketView = new project.views.BasketView();
+	app.controllers.BasketController = function() {
+		this.basketService = new app.services.BasketService();
+		this.basketView = new app.views.BasketView();
 		this.basketView.on("itemRemoved", $.proxy(this, "onItemRemoved"), this);
 	};
 
-	project.controllers.BasketController.prototype.onItemRemoved = function(id) {
+	app.controllers.BasketController.prototype.onItemRemoved = function(id) {
 		this.basketService.removeItem(id, $.proxy(this, "onItemRemovedSuccessfully"));
 	};
 
-	project.controllers.BasketController.prototype.onItemRemovedSuccessfully = function(response) {
+	app.controllers.BasketController.prototype.onItemRemovedSuccessfully = function(response) {
 		for(var i = 0; i < response.basket.removedItems.length; i++) {
 			this.basketView.removeItem(response.basket.removedItems[i].id);
 		}
@@ -125,11 +125,9 @@ Controller:
 
 Service:
 
-	project.services.BasketService = function() {
+	app.services.BasketService = function() {};
 
-	};
-
-	project.services.BasketService.prototype.removeItem = function(id, successFn) {
+	app.services.BasketService.prototype.removeItem = function(id, successFn) {
 		$.ajax({ method: "post", url: "", success: successFn });
 	};
 
@@ -150,51 +148,52 @@ Sample service response:
 
 View:
 
-	project.views.BasketView = function(container) {
-		container.on("click", ".remove", $.proxy(this, "onRemoveClicked"));
+	app.views.BasketView = function(container) {
+		this.container = container;
+		this.container.on("click", ".remove", $.proxy(this, "onRemoveClicked"));
 	};
 
 	// Base view is an event emitter
-	project.utilities.inherit(project.views.BasketView, project.views.BaseView);
+	app.utilities.inherit(app.views.BasketView, app.views.BaseView);
 
-	project.views.BasketView.prototype.onRemoveClicked = function(e) {
+	app.views.BasketView.prototype.onRemoveClicked = function(e) {
 		e.preventDefault();
 		var id = e.target.attr("data-item-id");
 		this.fire("itemRemoved", id);
 	};
 
-	project.views.BasketView.prototype.removeItem = function(id) {
+	app.views.BasketView.prototype.removeItem = function(id) {
 		$(/* item using id */).remove();
 	};
 
-	project.views.BasketView.prototype.updateTotals = function(totals) {
+	app.views.BasketView.prototype.updateTotals = function(totals) {
 		$(/**/).html(totals.blah);
 	};
 
 Initialising:
 
-	new project.controllers.BasketController();
+	new app.controllers.BasketController();
 
 ### Utilising custom events
 
 Controllers can raise events which is vital for communication across controllers. An example of this might be the menu page. The MenuController would be aware that a user has added an item to the basket. It might fire an event called "ItemAddedToBasket". The BasketController might listen for this event and do it's thing in order to update the basket appropriately. It might also raise its own notification to say "ItemSuccessfullyAddedToTheBasket" which the MenuController might listen for in order to update its view appropriately.
 
-Only controllers should send custom events.
+Only controllers should send custom events (unless you prefer not to have the extra added boiler plate of a controller)
 
-Events are defined in one "global" location project.events.js acting as a simple mediator.
+Events are defined in one "global" location app.events.js acting as a simple mediator.
 
-	project.events = {
-		itemAddedToBasket: new project.CustomEvent(),
-		someOtherEvent: new project.CustomEvent()
+	app.events = {
+		itemAddedToBasket: new app.CustomEvent(),
+		someOtherEvent: new app.CustomEvent()
 	};
 
 Publishing:
 
-	project.events.itemAddedToBasket.publish();
+	app.events.itemAddedToBasket.publish();
 
 Subscribing:
 
-	project.events.itemAddedToBasket.subscribe();
+	app.events.itemAddedToBasket.subscribe();
 
 ## Bootstrapping
 
@@ -225,22 +224,22 @@ Negatives:
 * Loading more than necessary which means a big upfront hit
 * Conditionality within the single bootstrap which slows down runtime
 
-With this (current) solution, for components that aren't global there will need to be conditions before instantiating.
+With this solution, for components that aren't global there will need to be conditions before instantiating.
 
-For example we don't want to create the sticky categories unless they are being shown, which only happens on the menu page. The page will need a small check as follows:
+For example we don't want to create a basket instance when not on a basket page:
 
-	if(document.getElementById("categories")) {
-		var categoriesController = new project.controllers.CategoriesController();
+	if(/* some check */) {
+		var basketController = new app.controllers.BasketController();
 	}
 
 'Some check' might unfortunately have to find an element to check it exists first. Alternatively you could expose a plain object within the view template. Something like:
 
-	project.categoriesPresent = true;
+	app.basketPage = true;
 
 Then the bootstap could be:
 
-	if(project.categoriesPresent) {
-		var categoriesController = new project.controllers.CategoriesController();
+	if(app.basketPage) {
+		var basketController = new app.controllers.BasketController();
 	}
 
 #### Option 2
@@ -255,6 +254,7 @@ Positives:
 Negatives:
 
 * 1 extra HTTP request for some pages
+* Sometimes you will need conditionality anyway, because a basket page might have different states that need to be checked for e.g. empty-basket versus basket-with-items.
 
 ## Namespacing and file organisation
 
@@ -268,42 +268,34 @@ Notice that components should be named and namespaced by what they are and *not*
         vendor/
             3rdPartyShiz.js
             ...
-        project/
-            project.js // namespace
+        app/
+            app.js // namespace
             utilities/
-            	project.utilities.js // namespace
-            	project.utilities.FormValidator.js // at least wrap jquery plugin for now to have consistent app code
-            	project.utilities.Toggler.js
-            	project.utilities.Sticky.js
-            	project.utilities.Dialog.js
-                project.utilities.Customevent.js
+            	app.utilities.js // namespace
+            	app.utilities.inherit.js
+                app.utilities.Customevent.js
+                app.utilities.EventEmitter.js
             	...
             events/
-                project.events.js // contains all the custom events on the singleton
+                app.events.js // contains all the custom events on the singleton
             views/
-                project.views.js // namespace
-                project.views.BaseView.js // all views inherit from this to ensure they are evented and loosely coupled
-                project.views.DialogView.js
-                project.views.MenuView.js
-                project.views.SideBasketView.js
-                project.views.MiniBasketView.js
-                project.views.LoginFormView.js
+                app.views.js // namespace
+                app.views.MenuView.js
+                app.views.BasketView.js
+                app.views.LoginFormView.js
                 ...
             controllers/
-                project.controllers.js // namespace
-                project.controllers.MenuController.js
-                project.controllers.SideBasketController.js
-                project.controllers.MiniBasketController.js
-                project.controllers.LoginController.js // won't list all these out but basically for each form validator the controller will create it's form validator - these are one liners
-                project.controllers.ForgotPasswordController.js // as previous
+                app.controllers.js // namespace
+                app.controllers.MenuController.js
+                app.controllers.BasketController.js
+                app.controllers.LoginController.js
                 ...
             services/
-                project.services.js // namespace
-                project.services.BasketService.js //ajax wrapper
-                project.services.HelpService.js // ajax wrapper
+                app.services.js // namespace
+                app.services.BasketService.js //ajax wrapper
                 ...
             initalisers/
-                project.initalisers.all.js
+                appInit.js
 
 ## Coding convention and style
 
@@ -342,57 +334,66 @@ Anonymous functions are hard to debug and impossible to test. All functions shou
 
 Event listeners (or handlers) should be named as if something has happened as follows:
 
-	project.MyComponent = function() {
-		project.events.itemAddedToBasket.subscribe(this.onItemAddedToBasket);
-		$(".login-button").on("click", this.onLoginButtonClicked);
+	app.MyComponent = function() {
+		// some custom event
+		app.events.itemAddedToBasket.subscribe($.proxy(this, 'onItemAddedToBasket'));
+
+		// some DOM event
+		$(".login-button").on("click", $.proxy(this, 'onLoginButtonClicked'));
 	};
 
-	project.MyComponent.prototype.onItemAddedToBasket = function() {
+	app.MyComponent.prototype.onItemAddedToBasket = function() {
 	};
 
-	project.MyComponent.prototype.onLoginButtonClicked = function() {
+	app.MyComponent.prototype.onLoginButtonClicked = function() {
 	};
 
 Event listeners should hand off to other methods for the actual behaviour. As en example, let's say that when a button is clicked, an element is toggled. See code below
 
-	project.SomeButtonToggler = function() {
-		$(".some-button").on("click", this.onSomeButtonClicked);
+	app.SomeButtonToggler = function() {
+		$(".some-button").on("click", $.proxy(this, 'onSomeButtonClicked'));
 	};
 
-	project.SomeButtonToggler.prototype.onSomeButtonClicked = function(e) {
-		e.preventDefault();
+	app.SomeButtonToggler.prototype.onSomeButtonClicked = function(e) {
 		this.toggle();
+		e.preventDefault();
 	};
 
-	project.SomeButtonToggler.prototype.toggle = function() {
+	app.SomeButtonToggler.prototype.toggle = function() {
 		/* code here */
 	};
 
 Always use $.fn.on instead of $.fn.click for example as it's more performant and provides flexibility.
 
-Always delegate when possible.
+Delegate when possible.
+
+### What is $.proxy?
+
+`$.proxy` is a weirdly-named wrapper for `Function.prototype.bind` and it is used to specify the context in-which an event listener will be called.
+
+It's used in event handlers, because DOM events&mdash;for example&mdash; will be called in the context of the element that fired the event.
 
 ### UpperCamelCase constructors
 
 All constructors should be UpperCamelCase as follows:
 
 	// good
-	project.MyComponent = function() {};
+	app.MyComponent = function() {};
 
 	// bad
-	project.myComponent = function() {};
+	app.myComponent = function() {};
 
 ### lowerCamelCase for everything else
 
 All namespaces and variables should be lowerCamelCase.
 
 	// good
-	project.MyComponent = function() {
+	app.MyComponent = function() {
 		this.someProperty;
 	};
 
 	// bad
-	project.MyComponent = function() {
+	app.MyComponent = function() {
 		this.SOMEPROPERTY;
 		this.AnOtherProperty;
 	};
@@ -411,7 +412,7 @@ All files should be bundled and revved. Bundle file names should be in the follo
 
 	<name of bundle>.<the version>.js
 
-e.g. paymentModules.123.js
+e.g. app.min.123.js
 
 ## Styling and Javascript
 
